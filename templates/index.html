@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/css/uikit.min.css"/>
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit-icons.min.js"></script>
+
+    <style>
+        .bg-image {
+            position: fixed;
+            z-index: -20;
+            display: block;
+            width: 100%;
+            height: 100%;
+            -webkit-filter: blur(3px);
+            -moz-filter: blur(3px);
+            -o-filter: blur(3px);
+            -ms-filter: blur(3px);
+            filter: blur(3px);
+            background-size: cover;
+            background-color: #F9C784;
+            background-repeat: no-repeat;
+        }
+
+        .custom_container {
+            background-color: #C44900;
+            color: white;
+        }
+
+        .uk-table-striped tbody tr:nth-of-type(2n):last-child, .uk-table-striped > tr:nth-of-type(2n):last-child {
+            border-bottom: 1px solid #e5e5e5;
+            background-color: white;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-image">
+</div>
+<div class="uk-container custom_container">
+    <form action="{{ url_for('handle_data') }}" method="post" enctype=multipart/form-data>
+        <fieldset class="uk-fieldset">
+
+            <legend class="uk-legend uk-text-large">Create Caption</legend>
+            <div class="uk-margin">
+                <label class="uk-form-label uk-text-large" for="form-stacked-text">Caption</label>
+                <div class="uk-form-controls">
+                    <textarea class="uk-textarea" rows="5" type="text" name="caption" maxlength="240"
+                              required></textarea>
+                </div>
+            </div>
+            <div class="uk-margin">
+                <label class="uk-form-label uk-text-large" for="form-stacked-text">Image</label>
+                <div class="uk-form-controls">
+
+                        <span uk-icon="icon: cloud-upload"></span>
+                        <span class="uk-text-middle">Attach binaries by dropping them here or</span>
+                        <div>
+                            <input type="file" name="file" accept="image/png, image/jpeg" required>
+                        </div>
+                </div>
+            </div>
+
+            <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
+
+            <input type="submit" class="uk-button uk-button-primary" value="Submit">
+        </fieldset>
+
+    </form>
+
+
+    <table class="uk-table">
+        <tr style="background-color: gray; color: white;">
+            <th style="color: white">Posted?</th>
+            <th style="color: white">Caption</th>
+            <th style="color: white">Link</th>
+            <th style="color: white">Subreddit</th>
+            <th style="color: white">Post</th>
+        </tr>
+
+        {% for i in posts %}
+            <tr style="background-color: gray;">
+
+                {% if i[4] == 0 %}
+                    <td style="background-color: green"> Good for posting</td>
+                {% endif %}
+                {% if i[4] == 1 %}
+                    <td style="background-color: red"> Already posted</td>
+                {% endif %}
+                <td>
+                    <textarea class="uk-textarea" name="caption_edit" maxlength="240" id="{{ i[0] }}" required>{{ i[2] }}</textarea>
+                    <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
+                </td>
+                <td>
+                    <a href="{{ i[3] }}" target="_blank">
+                        {{ i[3] }}
+                    </a>
+                </td>
+
+                <td>
+                        {% for sub in subreddits %}
+                            <label> <input class="uk-checkbox subreddit{{ i[0] }}"  type="checkbox" value="{{ sub }}"> {{ sub }}</label>
+                        {% endfor %}
+                </td>
+
+                {% if i[4] == 0 %}
+                    <td>
+                        <button class="post" name="{{ i[0] }}">Can Post</button>
+                    </td>
+                {% endif %}
+                {% if i[4] == 1 %}
+                    <td>
+                        <button class="post" disabled>Cannot post</button>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type=text/javascript>
+    $(document).ready(function () {
+        $(".post").click(function () {
+            clicked = $(this).attr("name");
+            str = ".subreddit"+clicked
+            varr = $(str + ':checkbox:checked')
+            console.log(varr);
+            var subs =  new Array();
+            $.each( varr, function( key, value ) {
+                subs.push(value.value)
+                console.log(value.value)
+            });
+            console.log(subs)
+            $.ajax({
+                type: 'POST',
+                url: "{{url_for('reddit_post')}}",
+                data: {'data': clicked,
+                'subs':JSON.stringify(subs)}
+            });
+        });
+
+         $(".edit").click(function () {
+            clicked = $(this).attr("name");
+              $.ajax({
+                type: 'POST',
+                url: "{{url_for('edit_post_path')}}",
+                data: {'caption': $("#"+clicked).val(),
+                'id': clicked}
+            })
+        });
+
+
+    });
+</script>
+
+</body>
+</html>
