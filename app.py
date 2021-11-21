@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 import json
 import praw
-from db import get_db, insert_post, get_posts, get_post, edit_post
+from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
 from subreddit_custom import SubredditCustom
 
 subreddits = {
@@ -35,7 +35,13 @@ def handle_data():
     imgur_link = upload_to_imgur(request)
     insert_post(caption, imgur_link)
     posts = get_posts()
-    return render_template("index.html", posts=posts, subreddits=subreddits)
+    return render_template("for.html", posts=posts, subreddits=subreddits)
+
+
+@app.route('/get', methods=['POST'])
+def get_postss():
+    posts = get_posts()
+    return render_template("for.html", posts=posts, subreddits=subreddits)
 
 
 @app.route('/redditpost', methods=['POST'])
@@ -45,23 +51,37 @@ def reddit_post():
     subs = json.loads(key)
     first_row = next(posts)
 
+    checkrules = True
+    messages = []
     for sub in subs:
-        post_reddit(first_row[2], first_row[3], sub)
-    edit_post(first_row[2], first_row[3], 1, first_row[0])
+        res = check_rules(first_row[2], sub)
+        if (res['status'] == 0):
+            messages.append(res['message'])
+            checkrules = False
+
+    if checkrules == True:
+        for sub in subs:
+            post_reddit(first_row[2], first_row[3], sub)
+        edit_post(first_row[2], first_row[3], 1, first_row[0])
 
     posts = get_posts()
-    return render_template("index.html", posts=posts, subreddits=subreddits)
+    return render_template("for.html", posts=posts, subreddits=subreddits, messages=messages)
+
+@app.route('/deletepost', methods=['POST'])
+def delete_post():
+    del_post(request.form['id'])
+    posts = get_posts()
+    return render_template("for.html", posts=posts, subreddits=subreddits)
+
 
 @app.route('/editpost', methods=['POST'])
 def edit_post_path():
     posts = get_post(request.form['id'])
     caption = request.form['caption']
-
     for i in posts:
         edit_post(caption, i[3], i[4], i[0])
-
     posts = get_posts()
-    return render_template("index.html", posts=posts, subreddits=subreddits)
+    return render_template("for.html", posts=posts, subreddits=subreddits)
 
 
 def post_reddit(caption, link, subredditstring):
@@ -85,6 +105,22 @@ def upload_to_imgur(rqs) -> str:
     imgur_link = json_r["data"]['link']
     return imgur_link
 
+
+
+def check_rules(caption, subreddit):
+    x = '{ "status":1, "message": "success"}'
+    y = json.loads(x)
+
+    if len(caption) <= 5:
+        return json.loads('{"status":0, "message":"tooshort"}')
+
+    if subreddit == "animalswap":
+            if caption.find("(IRTR)") != -1:
+                return json.loads('{ "status":1, "message": "Success"}')
+            else:
+                return json.loads('{ "status":0, "message": "Failed, needs to include (IRTR) in string"}')
+
+    return y
 
 if __name__ == '__main__':
     app.run()

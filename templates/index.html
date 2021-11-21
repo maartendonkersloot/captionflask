@@ -44,15 +44,17 @@
 <div class="bg-image">
 </div>
 <div class="uk-container custom_container">
-    <form action="{{ url_for('handle_data') }}" method="post" enctype=multipart/form-data>
+
+
+
+    <form id="formid" method="post" enctype=multipart/form-data>
         <fieldset class="uk-fieldset">
 
             <legend class="uk-legend uk-text-large">Create Caption</legend>
             <div class="uk-margin">
                 <label class="uk-form-label uk-text-large" for="form-stacked-text">Caption</label>
                 <div class="uk-form-controls">
-                    <textarea class="uk-textarea" rows="5" type="text" name="caption" maxlength="240"
-                              required></textarea>
+                    <textarea class="uk-textarea" id="caption" rows="5" type="text" name="caption" maxlength="240" required></textarea>
                 </div>
             </div>
             <div class="uk-margin">
@@ -62,7 +64,7 @@
                         <span uk-icon="icon: cloud-upload"></span>
                         <span class="uk-text-middle">Attach binaries by dropping them here or</span>
                         <div>
-                            <input type="file" name="file" accept="image/png, image/jpeg" required>
+                            <input type="file" name="file" id="file" accept="image/png, image/jpeg" required>
                         </div>
                 </div>
             </div>
@@ -75,59 +77,49 @@
     </form>
 
 
-    <table class="uk-table">
-        <tr style="background-color: gray; color: white;">
-            <th style="color: white">Posted?</th>
-            <th style="color: white">Caption</th>
-            <th style="color: white">Link</th>
-            <th style="color: white">Subreddit</th>
-            <th style="color: white">Post</th>
-        </tr>
+<div class="tablecontainer">
 
-        {% for i in posts %}
-            <tr style="background-color: gray;">
+</div>
 
-                {% if i[4] == 0 %}
-                    <td style="background-color: green"> Good for posting</td>
-                {% endif %}
-                {% if i[4] == 1 %}
-                    <td style="background-color: red"> Already posted</td>
-                {% endif %}
-                <td>
-                    <textarea class="uk-textarea" name="caption_edit" maxlength="240" id="{{ i[0] }}" required>{{ i[2] }}</textarea>
-                    <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
-                </td>
-                <td>
-                    <a href="{{ i[3] }}" target="_blank">
-                        {{ i[3] }}
-                    </a>
-                </td>
 
-                <td>
-                        {% for sub in subreddits %}
-                            <label> <input class="uk-checkbox subreddit{{ i[0] }}"  type="checkbox" value="{{ sub }}"> {{ sub }}</label>
-                        {% endfor %}
-                </td>
-
-                {% if i[4] == 0 %}
-                    <td>
-                        <button class="post" name="{{ i[0] }}">Can Post</button>
-                    </td>
-                {% endif %}
-                {% if i[4] == 1 %}
-                    <td>
-                        <button class="post" disabled>Cannot post</button>
-                    </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    </table>
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type=text/javascript>
     $(document).ready(function () {
-        $(".post").click(function () {
+
+            $("#formid").submit(function(e) {
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+                var caption = $('#caption').val();
+                var file = $('#file')[0].files[0];
+                form = new FormData();
+                form.append('caption', caption);
+                form.append('file', file);
+                $.ajax({
+                       type: "POST",
+                       url: "{{ url_for('handle_data') }}",
+                       data: form, // serializes the form's elements.
+                    processData: false,
+                contentType: false,
+                       success: function(data)
+                       {
+                           $( ".tablecontainer" ).empty();
+                            $( ".tablecontainer" ).append( data );
+                            $('#caption').val('')
+                           $('#file').val('')
+                       }
+                     });
+            });
+
+         $.ajax({
+                type: 'POST',
+                url: "{{url_for('get_postss')}}",
+                  success: function(d){
+                    $( ".tablecontainer" ).append( d );
+                  }
+            })
+
+          $(".post").click(function () {
             clicked = $(this).attr("name");
             str = ".subreddit"+clicked
             varr = $(str + ':checkbox:checked')
@@ -137,12 +129,16 @@
                 subs.push(value.value)
                 console.log(value.value)
             });
-            console.log(subs)
             $.ajax({
                 type: 'POST',
                 url: "{{url_for('reddit_post')}}",
                 data: {'data': clicked,
-                'subs':JSON.stringify(subs)}
+                'subs':JSON.stringify(subs)},
+                       success: function(data)
+                       {
+                           $( ".tablecontainer" ).empty();
+                            $( ".tablecontainer" ).append( data );
+                       }
             });
         });
 
@@ -152,7 +148,24 @@
                 type: 'POST',
                 url: "{{url_for('edit_post_path')}}",
                 data: {'caption': $("#"+clicked).val(),
-                'id': clicked}
+                'id': clicked},
+                  success: function(d){
+                    $( ".tablecontainer" ).empty();
+                    $( ".tablecontainer" ).append( d );
+                  }
+            })
+        });
+
+         $(".delete").click(function () {
+            clicked = $(this).attr("name");
+              $.ajax({
+                type: 'POST',
+                url: "{{url_for('delete_post')}}",
+                data: {'id': clicked},
+                  success: function(d){
+                    $( ".tablecontainer" ).empty();
+                    $( ".tablecontainer" ).append( d );
+                  }
             })
         });
 
