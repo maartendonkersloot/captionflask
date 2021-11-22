@@ -1,119 +1,121 @@
-   {%  for msg in messages %}
-        <h1 style="color: red">{{ msg }}</h1>
-        {% endfor %}
+{% for msg in messages %}
+    <h1 style="color: red">{{ msg }}</h1>
+{% endfor %}
 
 
-    <table class="uk-table">
-        <tr style="background-color: gray; color: white;">
-            <th style="color: white">Posted?</th>
-            <th style="color: white">Caption</th>
-            <th style="color: white">Link</th>
-            <th style="color: white">Subreddit</th>
-            <th style="color: white">Delete</th>
-            <th style="color: white">Post</th>
-        </tr>
+<table class="uk-table">
+    <tr style="background-color: gray; color: white;">
+        <th style="color: white">Posted?</th>
+        <th style="color: white">Caption</th>
+        <th style="color: white">Link</th>
+        <th style="color: white">Delete</th>
+        <th style="color: white">Post</th>
+    </tr>
 
-{% for i in posts %}
-            <tr style="background-color: gray;">
+    {% for i in posts %}
+        <tr style="background-color: gray;">
 
-                {% if i[4] == 0 %}
-                    <td style="background-color: green"> Good for posting</td>
-                {% endif %}
-                {% if i[4] == 1 %}
-                    <td style="background-color: red"> Already posted</td>
-                {% endif %}
+            {% if i[4] == 0 %}
+                <td style="background-color: green"> Good for posting</td>
+            {% endif %}
+            {% if i[4] == 1 %}
+                <td style="background-color: red"> Already posted</td>
+            {% endif %}
+            <td>
+                <textarea class="uk-textarea" name="caption_edit" maxlength="240" id="{{ i[0] }}"
+                          required>{{ i[2] }}</textarea>
+                <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
+            </td>
+            <td>
+                <a href="{{ i[3] }}" target="_blank">
+                    {{ i[3] }}
+                </a>
+            </td>
+
+
+
+            {% if i[4] == 0 %}
                 <td>
-                    <textarea class="uk-textarea" name="caption_edit" maxlength="240" id="{{ i[0] }}" required>{{ i[2] }}</textarea>
-                    <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
-                </td>
-                <td>
-                    <a href="{{ i[3] }}" target="_blank">
-                        {{ i[3] }}
-                    </a>
-                </td>
-
-                <td>
-                        {% for sub in subreddits %}
-                            <label> <input class="uk-checkbox subreddit{{ i[0] }}"  type="checkbox" value="{{ sub }}"> {{ sub }}</label>
-                        {% endfor %}
-                </td>
-
-                {% if i[4] == 0 %}
-                    <td>
                     <button class="uk-button uk-button-primary delete" name="{{ i[0] }}">DELETE</button>
                 </td>
-                    <td>
-                        <button class="post" name="{{ i[0] }}">Can Post</button>
-                    </td>
-                {% endif %}
-                {% if i[4] == 1 %}
-                    <td>
-                    <button class="uk-button uk-button-primary" name="{{ i[0] }}">NO DELETO</button>
+                <td>
+                    <button class="post"  class="uk-button uk-button-primary " name="{{ i[0] }}">Can Post</button>
                 </td>
-                    <td>
-                        <button class="post" disabled>Cannot post</button>
-                    </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
+            {% endif %}
+            {% if i[4] == 1 %}
+                <td>
+                </td>
+                <td>
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
 
-    </table>
+</table>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
+
 <script type=text/javascript>
 
     $(document).ready(function () {
 
+
         $(".post").click(function () {
             clicked = $(this).attr("name");
-            str = ".subreddit"+clicked
+            str = ".subreddit" + clicked
+
+            $(".delete").prop('disabled', true);
+            $(".post").prop('disabled', true);
             varr = $(str + ':checkbox:checked')
             console.log(varr);
-            var subs =  new Array();
-            $.each( varr, function( key, value ) {
-                subs.push(value.value)
-                console.log(value.value)
-            });
-            console.log(subs)
             $.ajax({
                 type: 'POST',
                 url: "{{url_for('reddit_post')}}",
-                data: {'data': clicked,
-                'subs':JSON.stringify(subs)},
-                  success: function(d){
-                    $( ".tablecontainer" ).empty();
-                    $( ".tablecontainer" ).append( d );
-                     $('#caption').val('')
-                           $('#file').val('')
-                  }
+                data: {
+                    'data': clicked
+                },
+                success: function (d) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(d);
+                    $('#caption').val('')
+                    $('#file').val('')
+                    $(".post").prop('disabled', false);
+                                    $(".delete").prop('disabled', false);
+
+                }
             });
         });
 
-         $(".edit").click(function () {
+        $(".edit").click(function () {
             clicked = $(this).attr("name");
-              $.ajax({
+            $.ajax({
                 type: 'POST',
                 url: "{{url_for('edit_post_path')}}",
-                data: {'caption': $("#"+clicked).val(),
-                'id': clicked},
-                  success: function(d){
-                    $( ".tablecontainer" ).empty();
-                    $( ".tablecontainer" ).append( d );
-                  }
+                data: {
+                    'caption': $("#" + clicked).val(),
+                    'id': clicked
+                },
+                success: function (d) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(d);
+                }
             })
         });
 
-         $(".delete").click(function () {
-            clicked = $(this).attr("name");
-              $.ajax({
-                type: 'POST',
-                url: "{{url_for('delete_post')}}",
-                data: {'id': clicked},
-                  success: function(d){
-                    $( ".tablecontainer" ).empty();
-                    $( ".tablecontainer" ).append( d );
-                  }
-            })
+        $(".delete").click(function () {
+            if (window.confirm("Are you sure?")) {
+                clicked = $(this).attr("name");
+                $.ajax({
+                    type: 'POST',
+                    url: "{{url_for('delete_post')}}",
+                    data: {'id': clicked},
+                    success: function (d) {
+                        $(".tablecontainer").empty();
+                        $(".tablecontainer").append(d);
+                    }
+                })
+            }
         });
 
 

@@ -9,7 +9,6 @@
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit-icons.min.js"></script>
-
     <style>
         .bg-image {
             position: fixed;
@@ -46,126 +45,161 @@
 <div class="uk-container custom_container">
 
 
-
     <form id="formid" method="post" enctype=multipart/form-data>
         <fieldset class="uk-fieldset">
-
             <legend class="uk-legend uk-text-large">Create Caption</legend>
-            <div class="uk-margin">
+            <div class="uk-margin"  style="text-align: center;">
                 <label class="uk-form-label uk-text-large" for="form-stacked-text">Caption</label>
                 <div class="uk-form-controls">
-                    <textarea class="uk-textarea" id="caption" rows="5" type="text" name="caption" maxlength="240" required></textarea>
+                    <textarea class="uk-textarea" id="caption" rows="5" type="text" name="caption" maxlength="240"
+                              required></textarea>
                 </div>
             </div>
-            <div class="uk-margin">
+            <div class="uk-margin" style="text-align: center;">
                 <label class="uk-form-label uk-text-large" for="form-stacked-text">Image</label>
                 <div class="uk-form-controls">
 
-                        <span uk-icon="icon: cloud-upload"></span>
-                        <span class="uk-text-middle">Attach binaries by dropping them here or</span>
-                        <div>
-                            <input type="file" name="file" id="file" accept="image/png, image/jpeg" required>
-                        </div>
+
+                    <div>
+                        <input type="file" name="file" id="file" accept="image/png, image/jpeg" class="uk-button uk-button-primary " required>
+                    </div>
                 </div>
             </div>
 
-            <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
 
-            <input type="submit" class="uk-button uk-button-primary" value="Submit">
+            <div class="uk-child-width-1-1@s uk-text-center uk-grid uk-margin" uk-grid="">
+                <div class="uk-first-column">
+                    <label class="uk-form-label uk-text-large" for="form-stacked-text">Subreddits</label>
+                </div>
+
+                <div class="uk-first-column">
+                    <div class="uk-child-width-1-4@s uk-text-center" uk-grid>
+                        {% for sub in subreddits %}
+                            <div>
+                                <label>
+                                    <input class="uk-checkbox subreddit" type="checkbox" value="{{ sub }}"> {{ sub }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="uk-first-column">
+                    <label class="uk-form-label uk-text-large " for="form-stacked-text">Submit</label>
+                </div>
+
+                <div class="uk-first-column">
+                    <input type="submit"  class="uk-button uk-button-primary submitbutton" value="Submit">
+                </div>
+            </div>
+
+
         </fieldset>
-
     </form>
 
 
-<div class="tablecontainer">
+    <div class="tablecontainer">
 
-</div>
+    </div>
 
 
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
+
 <script type=text/javascript>
     $(document).ready(function () {
 
-            $("#formid").submit(function(e) {
-                e.preventDefault(); // avoid to execute the actual submit of the form.
-                var caption = $('#caption').val();
-                var file = $('#file')[0].files[0];
-                form = new FormData();
-                form.append('caption', caption);
-                form.append('file', file);
-                $.ajax({
-                       type: "POST",
-                       url: "{{ url_for('handle_data') }}",
-                       data: form, // serializes the form's elements.
-                    processData: false,
+        $("#formid").submit(function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            $(".submitbutton").prop('disabled', true);
+            var caption = $('#caption').val();
+            var file = $('#file')[0].files[0];
+            varr = $(".subreddit" + ':checkbox:checked')
+            var subreddits = ""
+            $.each(varr, function (key, value) {
+                if (subreddits === "") {
+                    subreddits += value.value
+                } else {
+                    subreddits += ',' + value.value
+                }
+            });
+            form = new FormData();
+            form.append('caption', caption);
+            form.append('file', file);
+            form.append('subreddits', subreddits);
+
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('handle_data') }}",
+                data: form, // serializes the form's elements.
+                processData: false,
                 contentType: false,
-                       success: function(data)
-                       {
-                           $( ".tablecontainer" ).empty();
-                            $( ".tablecontainer" ).append( data );
-                            $('#caption').val('')
-                           $('#file').val('')
-                       }
-                     });
+                success: function (data) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(data);
+                    $('#caption').val('')
+                    $('#file').val('')
+                    varr.prop("checked", false);
+                    $(".submitbutton").prop('disabled', false);
+                }
             });
+        });
 
-         $.ajax({
-                type: 'POST',
-                url: "{{url_for('get_postss')}}",
-                  success: function(d){
-                    $( ".tablecontainer" ).append( d );
-                  }
-            })
+        $.ajax({
+            type: 'POST',
+            url: "{{url_for('get_postss')}}",
+            success: function (d) {
+                $(".tablecontainer").append(d);
+            }
+        })
 
-          $(".post").click(function () {
+        $(".post").click(function () {
             clicked = $(this).attr("name");
-            str = ".subreddit"+clicked
+            str = ".subreddit" + clicked
             varr = $(str + ':checkbox:checked')
-            console.log(varr);
-            var subs =  new Array();
-            $.each( varr, function( key, value ) {
-                subs.push(value.value)
-                console.log(value.value)
-            });
+
             $.ajax({
                 type: 'POST',
                 url: "{{url_for('reddit_post')}}",
-                data: {'data': clicked,
-                'subs':JSON.stringify(subs)},
-                       success: function(data)
-                       {
-                           $( ".tablecontainer" ).empty();
-                            $( ".tablecontainer" ).append( data );
-                       }
+                data: {
+                    'data': clicked
+                },
+                success: function (data) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(data);
+                }
             });
         });
 
-         $(".edit").click(function () {
+        $(".edit").click(function () {
             clicked = $(this).attr("name");
-              $.ajax({
+            $.ajax({
                 type: 'POST',
                 url: "{{url_for('edit_post_path')}}",
-                data: {'caption': $("#"+clicked).val(),
-                'id': clicked},
-                  success: function(d){
-                    $( ".tablecontainer" ).empty();
-                    $( ".tablecontainer" ).append( d );
-                  }
+                data: {
+                    'caption': $("#" + clicked).val(),
+                    'id': clicked
+                },
+                success: function (d) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(d);
+                }
             })
         });
 
-         $(".delete").click(function () {
+        $(".delete").click(function () {
             clicked = $(this).attr("name");
-              $.ajax({
+            $.ajax({
                 type: 'POST',
                 url: "{{url_for('delete_post')}}",
                 data: {'id': clicked},
-                  success: function(d){
-                    $( ".tablecontainer" ).empty();
-                    $( ".tablecontainer" ).append( d );
-                  }
+                success: function (d) {
+                    $(".tablecontainer").empty();
+                    $(".tablecontainer").append(d);
+                }
             })
         });
 

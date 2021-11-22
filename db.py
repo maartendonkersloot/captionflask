@@ -24,19 +24,20 @@ def close_connection():
         db.close()
 
 
-def insert_post(caption, link):
-    result = get_db().cursor().execute("INSERT INTO post (title, link, posted) VALUES (?, ?,0);", (caption, link))
+def insert_post(caption, link, subreddits):
+    result = get_db().cursor().execute("INSERT INTO post (title, link, subreddits,posted ) VALUES (?, ?, ?,0);", (caption, link, subreddits))
     get_db().commit()
     return result
 
 def get_posts():
-    ins_me = f"SELECT * FROM post;"
+    ins_me = f"SELECT * FROM post ORDER BY created DESC LIMIT 20  ;"
     result = get_db().cursor().execute(ins_me)
     return result
 
 def get_post(id):
     ins_me = f"SELECT * FROM post WHERE id ={id};"
     result = get_db().cursor().execute(ins_me)
+
     return result
 
 def del_post(id):
@@ -47,10 +48,6 @@ def del_post(id):
     return result
 
 def edit_post(caption, link,posted, id):
-    # cur = get_db().cursor()
-    # ins_me = f"UPDATE post SET title = '{caption}', link = '{link}', posted = {posted} WHERE id = {id};"
-    # result = cur.execute(ins_me)
-    # get_db().commit()
     result = get_db().cursor().execute("UPDATE post SET title = ?, link = ?, posted = ? WHERE ID = ?;", (caption, link, posted, id))
     get_db().commit()
     return result
