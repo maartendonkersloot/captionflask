@@ -24,8 +24,8 @@ def close_connection():
         db.close()
 
 
-def insert_post(caption, link, subreddits):
-    result = get_db().cursor().execute("INSERT INTO post (title, link, subreddits,posted ) VALUES (?, ?, ?,0);", (caption, link, subreddits))
+def insert_post(caption, link, subreddits, image):
+    result = get_db().cursor().execute("INSERT INTO post (title, link, subreddits,image,posted ) VALUES (?, ?, ?,?,0);", (caption, link, subreddits, image))
     get_db().commit()
     return result
 

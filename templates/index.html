@@ -5,10 +5,14 @@
     <title>Title</title>
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/css/uikit.min.css"/>
-
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit-icons.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css"/>
     <style>
         .bg-image {
             position: fixed;
@@ -40,6 +44,24 @@
 </head>
 <body>
 
+<script>
+    function previewFile(input) {
+        var file = $("input[type=file]").get(0).files[0];
+
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                $("#preview_img").attr("src", reader.result);
+                $("#preview_img2").attr("src", reader.result);
+
+            }
+
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
 <div class="bg-image">
 </div>
 <div class="uk-container custom_container">
@@ -48,7 +70,7 @@
     <form id="formid" method="post" enctype=multipart/form-data>
         <fieldset class="uk-fieldset">
             <legend class="uk-legend uk-text-large">Create Caption</legend>
-            <div class="uk-margin"  style="text-align: center;">
+            <div class="uk-margin" style="text-align: center;">
                 <label class="uk-form-label uk-text-large" for="form-stacked-text">Caption</label>
                 <div class="uk-form-controls">
                     <textarea class="uk-textarea" id="caption" rows="5" type="text" name="caption" maxlength="240"
@@ -58,13 +80,28 @@
             <div class="uk-margin" style="text-align: center;">
                 <label class="uk-form-label uk-text-large" for="form-stacked-text">Image</label>
                 <div class="uk-form-controls">
+                    <div class="uk-child-width-1-2@s uk-text-center" uk-grid>
 
-
-                    <div>
-                        <input type="file" name="file" id="file" accept="image/png, image/jpeg" class="uk-button uk-button-primary " required>
+                        <div>
+                            <input onchange="previewFile(this);" type="file" name="file" id="file"
+                                   accept="image/png, image/jpeg" class="uk-button uk-button-primary " required>
+                        </div>
+                        <div>
+                            <a href="#ex1" rel="modal:open">
+                                <img data-src="" width="100px" height="" alt="" id="preview_img" uk-img>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Modal HTML embedded directly into document -->
+            <div id="ex1" class="modal">
+                <img data-src="" width="" height="" alt="" id="preview_img2" uk-img>
+                <a href="#" rel="modal:close">Close</a>
+            </div>
+
+            <!-- Link to open the modal -->
 
 
             <div class="uk-child-width-1-1@s uk-text-center uk-grid uk-margin" uk-grid="">
@@ -89,7 +126,7 @@
                 </div>
 
                 <div class="uk-first-column">
-                    <input type="submit"  class="uk-button uk-button-primary submitbutton" value="Submit">
+                    <input type="submit" class="uk-button uk-button-primary submitbutton" value="Submit">
                 </div>
             </div>
 
@@ -105,8 +142,6 @@
 
 </div>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
 
 <script type=text/javascript>
     $(document).ready(function () {

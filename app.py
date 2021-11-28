@@ -39,11 +39,11 @@ def return_main():
 @app.route('/', methods=['POST'])
 def handle_data():
     caption = request.form['caption']
-    print(request.form)
     subredditsdds = request.form['subreddits']
-    imgur_link = upload_to_imgur(request)
-    print(subredditsdds)
-    insert_post(caption, imgur_link, subredditsdds)
+    imgur_link, image_string = upload_to_imgur(request)
+    file = request.files['file']
+    image_stringd = base64.b64encode(file.read())
+    insert_post(caption, imgur_link, subredditsdds,image_stringd)
     return return_main()
 
 
@@ -57,7 +57,6 @@ def reddit_post():
     posts = get_post(request.form['data'])
     first_row = next(posts)
     x = first_row[5].split(",")
-    print(x)
     checkrules = True
     messages = []
     for sub in x:
@@ -106,14 +105,14 @@ def post_reddit(caption, link, subredditstring):
         subreddit.submit(caption, url=link)
 
 
-def upload_to_imgur(rqs) -> str:
+def upload_to_imgur(rqs):
     uri = "https://api.imgur.com/3/image"
     file = rqs.files['file']
     image_string = base64.b64encode(file.read())
     r = requests.post(uri, headers={'Authorization': 'Client-ID 5d513b09dafde5f'}, data=image_string)
     json_r = json.loads(r.content)
     imgur_link = json_r["data"]['link']
-    return imgur_link
+    return imgur_link, image_string
 
 
 def check_rules(caption, subreddit):

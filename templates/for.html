@@ -7,6 +7,7 @@
     <tr style="background-color: gray; color: white;">
         <th style="color: white">Posted?</th>
         <th style="color: white">Caption</th>
+        <th style="color: white">Picture</th>
         <th style="color: white">Link</th>
         <th style="color: white">Delete</th>
         <th style="color: white">Post</th>
@@ -27,11 +28,20 @@
                 <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
             </td>
             <td>
+                <a href="#ex1{{ i[0] }}" rel="modal:open">
+                    <img src="{{ i[3] }}" width="100px" id="click">
+                </a>
+            </td>
+            <td>
                 <a href="{{ i[3] }}" target="_blank">
                     {{ i[3] }}
                 </a>
             </td>
 
+         <div id="ex1{{ i[0] }}" class="modal">
+                <img src="{{ i[3] }}" width="" height="" alt="" id="preview_img{{ i[0] }}" uk-img>
+                <a href="#" rel="modal:close">Close</a>
+            </div>
 
 
             {% if i[4] == 0 %}
@@ -39,7 +49,7 @@
                     <button class="uk-button uk-button-primary delete" name="{{ i[0] }}">DELETE</button>
                 </td>
                 <td>
-                    <button class="post"  class="uk-button uk-button-primary " name="{{ i[0] }}">Can Post</button>
+                    <button class="post" class="uk-button uk-button-primary " name="{{ i[0] }}">Can Post</button>
                 </td>
             {% endif %}
             {% if i[4] == 1 %}
@@ -81,7 +91,7 @@
                     $('#caption').val('')
                     $('#file').val('')
                     $(".post").prop('disabled', false);
-                                    $(".delete").prop('disabled', false);
+                    $(".delete").prop('disabled', false);
 
                 }
             });
