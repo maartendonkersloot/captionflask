@@ -1,7 +1,7 @@
 import base64
 
 import requests
-from flask import Flask, request
+from flask import Flask, request,jsonify
 from flask import render_template
 import json
 
@@ -10,6 +10,7 @@ import json
 import praw
 from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
 from subreddit_custom import SubredditCustom
+import os
 
 subreddits = {
     'Bodyswap': SubredditCustom(['bodyswap'], 'bodyswap'),
@@ -31,6 +32,26 @@ def hello_world():  # put application's code here
     return render_template("index.html", posts=posts, posts_copy=posts, subreddits=subreddits)
 
 
+@app.route('/browse')
+def browse():  # put application's code here
+    # Import the os module
+
+    # Get the current working directory
+    cwd = os.getcwd()
+    my_list = os.listdir(cwd)
+    print("Current working directory: {0}".format(cwd))
+    print(my_list)
+    return render_template("browse.html", currentdir=cwd, currentfiles=my_list)
+
+@app.route('/dir', methods=['POST'])
+def getdir_up():
+    print(request)
+    print(request.get_json())
+    dirr = request.form['dir']
+    path_parent = os.path.dirname(dirr)
+    my_list = os.listdir(path_parent)
+    return jsonify(currentdir=path_parent, currentfiles=my_list)
+
 def return_main():
     posts = get_posts()
     return render_template("for.html", posts=posts, posts_copy=posts, subreddits=subreddits)
@@ -43,7 +64,7 @@ def handle_data():
     imgur_link, image_string = upload_to_imgur(request)
     file = request.files['file']
     image_stringd = base64.b64encode(file.read())
-    insert_post(caption, imgur_link, subredditsdds,image_stringd)
+    insert_post(caption, imgur_link, subredditsdds, image_stringd)
     return return_main()
 
 
@@ -97,7 +118,7 @@ def post_reddit(caption, link, subredditstring):
         user_agent="script by guy on SO",
         username="swapper_rp",
     )
-    if(subredditstring == "FemalePossession"):
+    if (subredditstring == "FemalePossession"):
         subreddit = reddit.subreddit(subredditstring)
         subreddit.submit(caption, url=link, flair_id="53eb82f2-9f50-11eb-9d6d-0ec13961dd49")
     else:
@@ -132,4 +153,4 @@ def check_rules(caption, subreddit):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0")

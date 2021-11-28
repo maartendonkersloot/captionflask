@@ -4,7 +4,7 @@
 
 
 <table class="uk-table">
-    <tr style="background-color: gray; color: white;">
+        <tr style="background-color: #41444B; color: white;">
         <th style="color: white">Posted?</th>
         <th style="color: white">Caption</th>
         <th style="color: white">Picture</th>
@@ -14,18 +14,18 @@
     </tr>
 
     {% for i in posts %}
-        <tr style="background-color: gray;">
+        <tr style="background-color: #52575D;">
 
             {% if i[4] == 0 %}
                 <td style="background-color: green"> Good for posting</td>
             {% endif %}
             {% if i[4] == 1 %}
-                <td style="background-color: red"> Already posted</td>
+                <td style="background-color: #A44444"> Already posted</td>
             {% endif %}
             <td>
                 <textarea class="uk-textarea" name="caption_edit" maxlength="240" id="{{ i[0] }}"
                           required>{{ i[2] }}</textarea>
-                <button class="uk-button uk-button-primary edit" name="{{ i[0] }}">Save changes</button>
+                <button class="uk-button uk-button-primary edit" style="margin-top:10px;" name="{{ i[0] }}">Save changes</button>
             </td>
             <td>
                 <a href="#ex1{{ i[0] }}" rel="modal:open">

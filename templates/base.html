@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CaptionCenter</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/css/uikit.min.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://pagination.js.org/dist/2.1.5/pagination.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.3/dist/js/uikit-icons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/style.css') }}">
+    <script src="{{ url_for('static',filename='js/previewfile.js') }}"></script>
+</head>
+<body>
+<div class="bg-image">
+</div>
+<div class="uk-container custom_container">
+
+    <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+
+            <ul class="uk-navbar-nav">
+                <li class="uk-active"><a href="{{ url_for('hello_world') }}">Home</a>
+                </li>
+                <li class="uk-active"><a href="{{ url_for('browse') }}">Browse</a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+    {% block content %} {% endblock %}
+</div>
+</body>
+</html>
