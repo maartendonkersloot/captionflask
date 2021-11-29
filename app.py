@@ -51,7 +51,7 @@ def findandreturnimages(dir):
     my_list = os.listdir(dir)
     list = []
     for items in my_list:
-        string = dir + "\\" + str(items)
+        string = dir +"/"+ str(items)
         if items.endswith('.png') == True:
             with open(string, "rb") as img_file:
                 my_string = base64.b64encode(img_file.read()).decode('utf-8')
