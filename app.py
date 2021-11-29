@@ -78,7 +78,7 @@ def getdir_up():
 def getdir_down():
     dirr = request.form['dir']
     fileordir = request.form['fileordir']
-    path = dirr + "\\" + fileordir
+    path = dirr + "/" + fileordir
     my_list = os.listdir(path)
     images = findandreturnimages(path)
     return jsonify(currentdir=path, currentfiles=my_list, images=images)
