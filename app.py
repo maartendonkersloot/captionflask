@@ -11,6 +11,9 @@ import praw
 from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
 from subreddit_custom import SubredditCustom
 import os
+import PIL.Image
+
+import base64
 
 subreddits = {
     'Bodyswap': SubredditCustom(['bodyswap'], 'bodyswap'),
@@ -41,16 +44,44 @@ def browse():  # put application's code here
     my_list = os.listdir(cwd)
     print("Current working directory: {0}".format(cwd))
     print(my_list)
-    return render_template("browse.html", currentdir=cwd, currentfiles=my_list)
+    images = findandreturnimages(cwd)
+    return render_template("browse.html", currentdir=cwd, currentfiles=my_list, images=images)
+
+def findandreturnimages(dir):
+    my_list = os.listdir(dir)
+    list = []
+    for items in my_list:
+        string = dir + "\\" + str(items)
+        if items.endswith('.png') == True:
+            with open(string, "rb") as img_file:
+                my_string = base64.b64encode(img_file.read()).decode('utf-8')
+            list.append(my_string)
+        if items.endswith('.jpg') == True:
+            with open(string, "rb") as img_file:
+                my_string = base64.b64encode(img_file.read()).decode('utf-8')
+            list.append(my_string)
+        if items.endswith('.JPG') == True:
+            with open(string, "rb") as img_file:
+                my_string = base64.b64encode(img_file.read()).decode('utf-8')
+            list.append(my_string)
+    return list
 
 @app.route('/dir', methods=['POST'])
 def getdir_up():
-    print(request)
-    print(request.get_json())
     dirr = request.form['dir']
     path_parent = os.path.dirname(dirr)
     my_list = os.listdir(path_parent)
-    return jsonify(currentdir=path_parent, currentfiles=my_list)
+    images = findandreturnimages(path_parent)
+    return jsonify(currentdir=path_parent, currentfiles=my_list, images=images)
+
+@app.route('/dirdown', methods=['POST'])
+def getdir_down():
+    dirr = request.form['dir']
+    fileordir = request.form['fileordir']
+    path = dirr + "\\" + fileordir
+    my_list = os.listdir(path)
+    images = findandreturnimages(path)
+    return jsonify(currentdir=path, currentfiles=my_list, images=images)
 
 def return_main():
     posts = get_posts()
