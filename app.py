@@ -1,19 +1,13 @@
 import base64
-
-import requests
-from flask import Flask, request,jsonify
-from flask import render_template
-import json
-
+from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
+from flask import Flask, request, jsonify, render_template
 app = Flask(__name__)
 import json
-import praw
-from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
-from subreddit_custom import SubredditCustom
 import os
-import PIL.Image
-
-import base64
+import praw
+import requests
+from subreddit_custom import SubredditCustom
+import rest_routes
 
 subreddits = {
     'Bodyswap': SubredditCustom(['bodyswap'], 'bodyswap'),
@@ -29,17 +23,13 @@ subreddits = {
 
 @app.route('/')
 def hello_world():  # put application's code here
-    # init_db()
     get_db().cursor()
     posts = get_posts()
     return render_template("index.html", posts=posts, posts_copy=posts, subreddits=subreddits)
 
 
 @app.route('/browse')
-def browse():  # put application's code here
-    # Import the os module
-
-    # Get the current working directory
+def browse(): 
     cwd = os.getcwd()
     my_list = os.listdir(cwd)
     print("Current working directory: {0}".format(cwd))
@@ -184,4 +174,4 @@ def check_rules(caption, subreddit):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0",debug=True)
