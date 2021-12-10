@@ -24,7 +24,7 @@ subreddits = {
 @app.route('/')
 def hello_world():  # put application's code here
     get_db().cursor()
-    posts = get_posts()
+    posts = get_posts(20)
     return render_template("index.html", posts=posts, posts_copy=posts, subreddits=subreddits)
 
 
@@ -74,7 +74,7 @@ def getdir_down():
     return jsonify(currentdir=path, currentfiles=my_list, images=images)
 
 def return_main():
-    posts = get_posts()
+    posts = get_posts(20)
     return render_template("for.html", posts=posts, posts_copy=posts, subreddits=subreddits)
 
 
@@ -112,7 +112,7 @@ def reddit_post():
             post_reddit(first_row[2], first_row[3], sub)
         edit_post(first_row[2], first_row[3], 1, first_row[0])
 
-    posts = get_posts()
+    posts = get_posts(20)
     return render_template("for.html", posts=posts, posts_copy=posts, subreddits=subreddits, messages=messages)
 
 

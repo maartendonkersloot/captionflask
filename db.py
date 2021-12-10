@@ -1,8 +1,6 @@
 import sqlite3
 from flask import current_app, g
-
 DATABASE = 'database.db'
-
 
 def init_db():
     db = get_db()
@@ -29,8 +27,14 @@ def insert_post(caption, link, subreddits, image):
     get_db().commit()
     return result
 
-def get_posts():
-    ins_me = f"SELECT * FROM post ORDER BY created DESC LIMIT 20  ;"
+def get_posts(limit, order = "created", desc = "DESC"):
+    ins_me = f"SELECT * FROM post ORDER BY {order} {desc} LIMIT {limit};"
+    result = get_db().cursor().execute(ins_me)
+    return result
+
+
+def get__all_posts(order = "created", desc = "DESC"):
+    ins_me = f"SELECT * FROM post ORDER BY {order} {desc};"
     result = get_db().cursor().execute(ins_me)
     return result
 
