@@ -8,7 +8,7 @@ import praw
 import requests
 from subreddit_custom import SubredditCustom
 import rest_routes
-
+import utils
 subreddits = {
     'Bodyswap': SubredditCustom(['bodyswap'], 'bodyswap'),
     'FemalePossession': SubredditCustom(['FemalePossession'], 'FemalePossession'),
@@ -82,7 +82,7 @@ def return_main():
 def handle_data():
     caption = request.form['caption']
     subredditsdds = request.form['subreddits']
-    imgur_link, image_string = upload_to_imgur(request)
+    imgur_link, image_string = utils.upload_to_imgur(request)
     file = request.files['file']
     image_stringd = base64.b64encode(file.read())
     insert_post(caption, imgur_link, subredditsdds, image_stringd)
@@ -102,14 +102,14 @@ def reddit_post():
     checkrules = True
     messages = []
     for sub in x:
-        res = check_rules(first_row[2], sub)
+        res = utils.check_rules(first_row[2], sub)
         if res['status'] == 0:
             messages.append(res['message'])
             checkrules = False
 
     if checkrules == True:
         for sub in x:
-            post_reddit(first_row[2], first_row[3], sub)
+            utils.post_reddit(first_row[2], first_row[3], sub)
         edit_post(first_row[2], first_row[3], 1, first_row[0])
 
     posts = get_posts(20)
@@ -131,46 +131,9 @@ def edit_post_path():
     return return_main()
 
 
-def post_reddit(caption, link, subredditstring):
-    reddit = praw.Reddit(
-        client_id="dBbawnq6RJY_zdl-TiEoHg",
-        client_secret="RWjFvyIseJMGt1hQuKCCQAe-0P_63Q",
-        password="Esmeralda1",
-        user_agent="script by guy on SO",
-        username="swapper_rp",
-    )
-    if (subredditstring == "FemalePossession"):
-        subreddit = reddit.subreddit(subredditstring)
-        subreddit.submit(caption, url=link, flair_id="53eb82f2-9f50-11eb-9d6d-0ec13961dd49")
-    else:
-        subreddit = reddit.subreddit(subredditstring)
-        subreddit.submit(caption, url=link)
 
 
-def upload_to_imgur(rqs):
-    uri = "https://api.imgur.com/3/image"
-    file = rqs.files['file']
-    image_string = base64.b64encode(file.read())
-    r = requests.post(uri, headers={'Authorization': 'Client-ID 5d513b09dafde5f'}, data=image_string)
-    json_r = json.loads(r.content)
-    imgur_link = json_r["data"]['link']
-    return imgur_link, image_string
 
-
-def check_rules(caption, subreddit):
-    x = '{ "status":1, "message": "success"}'
-    y = json.loads(x)
-
-    if len(caption) <= 5:
-        return json.loads('{"status":0, "message":"tooshort"}')
-
-    if subreddit == "animalswap":
-        if caption.find("(IRTR)") != -1:
-            return json.loads('{ "status":1, "message": "Success"}')
-        else:
-            return json.loads('{ "status":0, "message": "Failed, needs to include (IRTR) in string"}')
-
-    return y
 
 
 if __name__ == '__main__':

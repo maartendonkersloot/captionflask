@@ -7,6 +7,7 @@
         <tr style="background-color: #41444B; color: white;">
         <th style="color: white">Posted?</th>
         <th style="color: white">Caption</th>
+        <th style="color: white">Subreddits</th>
         <th style="color: white">Picture</th>
         <th style="color: white">Link</th>
         <th style="color: white">Delete</th>
@@ -27,6 +28,9 @@
                           required>{{ i[2] }}</textarea>
                 <button class="uk-button uk-button-primary edit" style="margin-top:10px;" name="{{ i[0] }}">Save changes</button>
             </td>
+            <td>
+                {{ i[5] }}
+         </td>
             <td>
                 <a href="#ex1{{ i[0] }}" rel="modal:open">
                     <img src="{{ i[3] }}" width="100px" id="click">

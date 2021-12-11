@@ -32,7 +32,6 @@ def get_posts(limit, order = "created", desc = "DESC"):
     result = get_db().cursor().execute(ins_me)
     return result
 
-
 def get__all_posts(order = "created", desc = "DESC"):
     ins_me = f"SELECT * FROM post ORDER BY {order} {desc};"
     result = get_db().cursor().execute(ins_me)
@@ -41,7 +40,11 @@ def get__all_posts(order = "created", desc = "DESC"):
 def get_post(id):
     ins_me = f"SELECT * FROM post WHERE id ={id};"
     result = get_db().cursor().execute(ins_me)
+    return result
 
+def get_post_by_link(link):
+    print
+    result = get_db().cursor().execute(f"SELECT * FROM post WHERE link = '{link}';")
     return result
 
 def del_post(id):
