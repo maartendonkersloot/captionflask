@@ -98,6 +98,7 @@ def return_main():
 def handle_data():
     caption = request.form['caption']
     datetimepicker = request.form['datetimepicker']
+    print("time ", datetimepicker)
     subredditsdds = request.form['subreddits']
     imgur_link, image_string = utils.upload_to_imgur(request)
     file = request.files['file']
@@ -136,20 +137,32 @@ def reddit_post():
     posts,scheduled = get_posts_local(20)
     return render_template("for.html", posts=posts,scheduled=scheduled, posts_copy=posts, subreddits=subreddits, messages=messages)
 
-def run_hourly():
-    with app.app_context():
-        print("Check scheduled posts")
-        get_db().cursor()
-        posts = get__all_posts()
-        for post in posts:
-            if post[7] != None and post[7] != 0 and post[4] == 0:
-                datetime_object = datetime.strptime(post[7][:23], '%Y/%m/%d %H:%M')
-                if datetime_object < datetime.now():
-                    x = post[5].split(",")
-                    for sub in x:
-                        print("posting to " + sub)
-                        utils.post_reddit(post[2], post[3], sub)
-                    edit_post(post[2], post[3], 1, post[0])
+# def run_hourly():
+#     with app.app_context():
+#         print("Check scheduled posts")
+#         get_db().cursor()
+#         posts = get__all_posts()
+#         for post in posts:
+#             if post[7] != None and post[7] != 0 and post[4] == 0:
+#                 datetime_object = datetime.strptime(post[7][:23], '%Y/%m/%d %H:%M')
+#                 if datetime_object < datetime.now():
+#                     x = post[5].split(",")
+#                     checkrules = True
+#                     messages = []
+#                     for sub in x:
+#                         print(post[2])
+#                         res = utils.check_rules(post[2], sub)
+#                         print(res)
+#                         if res['status'] == 0:
+#                             edit_post(post[2], post[3], post[4], post[0], 0)
+#                             messages.append(res['message'])
+#                             checkrules = False
+
+#                     if checkrules == True:
+#                         for sub in x:
+#                             print("posting to " + sub)
+#                             utils.post_reddit(post[2], post[3], sub)
+#                         edit_post(post[2], post[3], 1, post[0], post[7])
 
 @app.route('/deletepost', methods=['POST'])
 def delete_post():
@@ -162,14 +175,8 @@ def edit_post_path():
     posts = get_post(request.form['id'])
     caption = request.form['caption']
     for i in posts:
-        edit_post(caption, i[3], i[4], i[0])
+        edit_post(caption, i[3], i[4], i[0], i[7])
     return return_main()
-
-with app.app_context():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=run_hourly, trigger="interval", minutes=15)
-    scheduler.start()
-
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=True)

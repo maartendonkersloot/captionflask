@@ -37,7 +37,7 @@ def get_last_12_hours(time_array) -> list:
     now = datetime.now()
     last_12_hours = []
     for time in time_array:
-        if now - time[0] < timedelta(hours=12):
+        if now - time[0] < timedelta(hours=5):
             last_12_hours.append(time)
     return last_12_hours
 
@@ -61,9 +61,11 @@ def can_i_post_to_bodyswap() -> bool:
     for time_subreddit in get_all_posts_user("swapper_rp"):
         if time_subreddit[1] == "bodyswap":
             amount_of_bodyswap_posts += 1
-    if amount_of_bodyswap_posts < 3:
+    if amount_of_bodyswap_posts <= 0:
         return True
     return False
+
+print(can_i_post_to_bodyswap())
 
 def check_rules(caption, subreddit) -> bool:
     x = '{ "status":1, "message": "success"}'
@@ -80,8 +82,10 @@ def check_rules(caption, subreddit) -> bool:
 
     if subreddit == "bodyswap":
         if can_i_post_to_bodyswap():
-           return json.loads('{ "status":1, "message": "Success"}')
+            print("can post")
+            return json.loads('{ "status":1, "message": "Success"}')
         else:
+            print("cant post")
             return json.loads('{ "status":0, "message": "Failed, you\'ve already posted 3 bodyswap posts"}')
     
     return y

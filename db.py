@@ -64,7 +64,7 @@ def del_post(id):
     get_db().commit()
     return result
 
-def edit_post(caption, link,posted, id):
-    result = get_db().cursor().execute("UPDATE post SET title = ?, link = ?, posted = ? WHERE ID = ?;", (caption, link, posted, id))
+def edit_post(caption, link,posted, id, scheduled):
+    result = get_db().cursor().execute("UPDATE post SET title = ?, link = ?, posted = ?, scheduled = ? WHERE ID = ?;", (caption, link, posted, id,scheduled))
     get_db().commit()
     return result
