@@ -1,7 +1,9 @@
 import base64
-from db import get_db, insert_post, get_posts, get_post, edit_post, del_post
+from db import get_db, insert_post, get_posts, get_post, edit_post, del_post, insert_post_datetime
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 import json
 import os
 import praw
@@ -20,12 +22,22 @@ subreddits = {
     'FictionBodySwap': SubredditCustom(['FictionBodySwap'], 'FictionBodySwap'),
 }
 
+def get_posts_local(limit = 20):
+    posts = get_posts(limit)
+    postswithoutsched = []
+    scheduled = []
+    for post in posts.fetchall():
+        if post[7] == None or post[7] == 0:
+            postswithoutsched.append(post)
+        else:
+            scheduled.append(post)
+    return postswithoutsched, scheduled
 
 @app.route('/')
 def hello_world():  # put application's code here
     get_db().cursor()
-    posts = get_posts(20)
-    return render_template("index.html", posts=posts, posts_copy=posts, subreddits=subreddits)
+    posts, scheduled = get_posts_local(20)
+    return render_template("index.html", posts=posts,scheduled=scheduled, posts_copy=posts, subreddits=subreddits)
 
 
 @app.route('/browse')
@@ -74,18 +86,23 @@ def getdir_down():
     return jsonify(currentdir=path, currentfiles=my_list, images=images)
 
 def return_main():
-    posts = get_posts(20)
-    return render_template("for.html", posts=posts, posts_copy=posts, subreddits=subreddits)
+    posts,scheduled = get_posts_local(20)
+    return render_template("for.html", posts=posts,scheduled=scheduled, posts_copy=posts, subreddits=subreddits)
 
 
 @app.route('/', methods=['POST'])
 def handle_data():
     caption = request.form['caption']
+    datetimepicker = request.form['datetimepicker']
     subredditsdds = request.form['subreddits']
     imgur_link, image_string = utils.upload_to_imgur(request)
     file = request.files['file']
     image_stringd = base64.b64encode(file.read())
-    insert_post(caption, imgur_link, subredditsdds, image_stringd)
+    print(datetimepicker)
+    if datetimepicker != 0:
+        insert_post_datetime(caption, imgur_link, subredditsdds, image_stringd, datetimepicker)
+    else:
+        insert_post(caption, imgur_link, subredditsdds, image_stringd)
     return return_main()
 
 
@@ -112,8 +129,8 @@ def reddit_post():
             utils.post_reddit(first_row[2], first_row[3], sub)
         edit_post(first_row[2], first_row[3], 1, first_row[0])
 
-    posts = get_posts(20)
-    return render_template("for.html", posts=posts, posts_copy=posts, subreddits=subreddits, messages=messages)
+    posts,scheduled = get_posts_local(20)
+    return render_template("for.html", posts=posts,scheduled=scheduled, posts_copy=posts, subreddits=subreddits, messages=messages)
 
 
 @app.route('/deletepost', methods=['POST'])

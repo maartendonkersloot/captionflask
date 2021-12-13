@@ -64,6 +64,15 @@
                     </div>
 
                     <div class="uk-first-column">
+                        <input type="text" id="datetimepicker"/>
+                    </div>
+
+                    <div class="uk-first-column">
+                        <input class="uk-checkbox scheduleler" type="checkbox" value="Schedule?"> 
+                    </div>
+
+
+                    <div class="uk-first-column">
                         <input type="submit" class="uk-button uk-button-primary submitbutton" value="Submit">
                     </div>
                 </div>
@@ -72,6 +81,12 @@
             </fieldset>
         </form>
 
+          <script>
+
+            $('#datetimepicker').datetimepicker({
+            inline:true,
+            });
+        </script>
 
         <div class="tablecontainer">
 
@@ -87,8 +102,11 @@
                 e.preventDefault(); // avoid to execute the actual submit of the form.
                 $(".submitbutton").prop('disabled', true);
                 var caption = $('#caption').val();
+                var datetimepicker = $('#datetimepicker').val()
                 var file = $('#file')[0].files[0];
                 varr = $(".subreddit" + ':checkbox:checked')
+                schedulerr = $(".scheduleler" + ':checkbox:checked')
+
                 var subreddits = ""
                 $.each(varr, function (key, value) {
                     if (subreddits === "") {
@@ -101,6 +119,11 @@
                 form.append('caption', caption);
                 form.append('file', file);
                 form.append('subreddits', subreddits);
+                if(schedulerr.length > 0){
+                    form.append('datetimepicker', datetimepicker);
+                }else{
+                    form.append('datetimepicker', 0);
+                }
 
 
                 $.ajax({

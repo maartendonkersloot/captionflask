@@ -27,6 +27,11 @@ def insert_post(caption, link, subreddits, image):
     get_db().commit()
     return result
 
+def insert_post_datetime(caption, link, subreddits, image, datetime):
+    result = get_db().cursor().execute("INSERT INTO post (title, link, subreddits,image, scheduled,posted ) VALUES (?, ?, ?,?,?,0);", (caption, link, subreddits, image,datetime))
+    get_db().commit()
+    return result
+
 def get_posts(limit, order = "created", desc = "DESC"):
     ins_me = f"SELECT * FROM post ORDER BY {order} {desc} LIMIT {limit};"
     result = get_db().cursor().execute(ins_me)
