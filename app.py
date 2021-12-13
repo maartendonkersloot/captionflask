@@ -1,5 +1,5 @@
 import base64
-from db import get_db, insert_post, get_posts, get_post, edit_post, del_post, insert_post_datetime
+from db import get_db, insert_post, get_posts, get_post, edit_post, del_post, insert_post_datetime, get__all_posts
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 app = Flask(__name__)
@@ -11,6 +11,10 @@ import requests
 from subreddit_custom import SubredditCustom
 import rest_routes
 import utils
+from datetime import datetime
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
+import time
 subreddits = {
     'Bodyswap': SubredditCustom(['bodyswap'], 'bodyswap'),
     'FemalePossession': SubredditCustom(['FemalePossession'], 'FemalePossession'),
@@ -132,6 +136,20 @@ def reddit_post():
     posts,scheduled = get_posts_local(20)
     return render_template("for.html", posts=posts,scheduled=scheduled, posts_copy=posts, subreddits=subreddits, messages=messages)
 
+def run_hourly():
+    with app.app_context():
+        print("Check scheduled posts")
+        get_db().cursor()
+        posts = get__all_posts()
+        for post in posts:
+            if post[7] != None and post[7] != 0 and post[4] == 0:
+                datetime_object = datetime.strptime(post[7][:23], '%Y/%m/%d %H:%M')
+                if datetime_object < datetime.now():
+                    x = post[5].split(",")
+                    for sub in x:
+                        print("posting to " + sub)
+                        utils.post_reddit(post[2], post[3], sub)
+                    edit_post(post[2], post[3], 1, post[0])
 
 @app.route('/deletepost', methods=['POST'])
 def delete_post():
@@ -147,11 +165,12 @@ def edit_post_path():
         edit_post(caption, i[3], i[4], i[0])
     return return_main()
 
-
-
-
-
+with app.app_context():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=run_hourly, trigger="interval", minutes=15)
+    scheduler.start()
 
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=True)
+    

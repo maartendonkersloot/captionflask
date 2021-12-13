@@ -11,7 +11,7 @@
     <th style="color: white">Picture</th>
     <th style="color: white">Link</th>
     <th style="color: white">Delete</th>
-    <th style="color: white">Post</th>
+    <th style="color: white">Scheduled time</th>
 </tr>
 
 {% for i in scheduled %}
@@ -53,7 +53,7 @@
                 <button class="uk-button uk-button-primary delete" name="{{ i[0] }}">DELETE</button>
             </td>
             <td>
-                <button class="post" class="uk-button uk-button-primary " name="{{ i[0] }}">Can Post</button>
+                <p name="{{ i[0] }}">{{i[7]}}</p>
             </td>
         {% endif %}
         {% if i[4] == 1 %}

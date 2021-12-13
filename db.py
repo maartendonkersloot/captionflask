@@ -37,6 +37,11 @@ def get_posts(limit, order = "created", desc = "DESC"):
     result = get_db().cursor().execute(ins_me)
     return result
 
+def get_scheduled(sched, order = "created", desc = "DESC"):
+    ins_me = f"SELECT * FROM post WHERE scheduled = {sched} ORDER BY {order} {desc} ;"
+    result = get_db().cursor().execute(ins_me)
+    return result
+
 def get__all_posts(order = "created", desc = "DESC"):
     ins_me = f"SELECT * FROM post ORDER BY {order} {desc};"
     result = get_db().cursor().execute(ins_me)
