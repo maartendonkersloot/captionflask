@@ -83,7 +83,7 @@
 
         <script>
 
-            axios.get('http://192.168.2.5:5001/api/posts/js')
+            axios.get('{{api}}api/posts/js')
                 .then(function (response) {
                     // handle success
                     $(".tablecontainer").empty();
@@ -123,13 +123,13 @@
     
                     $.ajax({
                         type: "POST",
-                        url: 'http://192.168.2.5:5001/api/posts',
+                        url: '{{api}}api/posts',
                         data: form, // serializes the form's elements.
                         processData: false,
                         contentType: false,
                         success: function (data) {
                             
-                            axios.get('http://192.168.2.5:5001/api/posts/js')
+                            axios.get('{{api}}api/posts/js')
                 .then(function (response) {
                     // handle success
                     $(".tablecontainer").empty();
