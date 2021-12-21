@@ -3,6 +3,7 @@ config.ini
 __pycache__/
 *.py[cod]
 *$py.class
+*.ini
 
 # C extensions
 *.so
@@ -113,6 +114,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.ini
+.ini
 
 # Spyder project settings
 .spyderproject
