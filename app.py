@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from config import get_section_key
+from config import get_section_key, get_api_key
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +19,7 @@ subreddits = [
 
 @app.route("/")
 def hello_world():  # put application's code here
-    key = get_section_key("local", "api_url")
+    key = get_api_key()
     return render_template("index.html", subreddits=subreddits, api=key)
 
 
