@@ -2,7 +2,7 @@
 The database object/handler for the api
 """
 import json
-from AlchemyEncoder import AlchemyEncoder
+from alchemyencoder import AlchemyEncoder
 from objects.Post import Post
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker

@@ -1,49 +1,96 @@
-from __main__ import app
-from db import Db
-from flask import request, jsonify, render_template
+"""
+The api routes for the api.
+"""
 import json
-
-db = Db()
-import sys
+from db import Db
+from flask import request, render_template
+from flask import Blueprint
 from config import get_api_key
 
+db = Db()
 db.create_db()
+api_routes = Blueprint("api_routes", __name__)
 
 
-@app.route("/api/posts", methods=["GET"])
+@api_routes.route("/api/posts", methods=["GET"])
 def posts_get():
-    print(sys.argv[0])
+    """
+    Gets all the posts in the database
+    Returns:
+        [type]: A json off the posts in the database
+    """
     return db.get_posts()
 
 
-@app.route("/api/posts/js", methods=["GET"])
+@api_routes.route("/api/posts/js", methods=["GET"])
 def post_posts_posts():
+    """
+    Posts a post to the subreddit
+    Returns:
+        [type]: Returns the for html template with the posts and api key included
+    """
     posts = db.get_posts()
     return render_template("for.html", posts=json.loads(posts), api=get_api_key())
 
 
-@app.route("/api/posts", methods=["POST"])
+@api_routes.route("/api/posts", methods=["POST"])
 def posts_post():
+    """
+    Posts a post to the database
+    Returns:
+        [type]: Returns the posted post
+    """
     print(request.form)
     return db.add_post(request)
 
 
-@app.route("/api/posts/<id>", methods=["GET"])
-def posts_get_by_id(id):
-    return db.get_post_by_id(id)
+@api_routes.route("/api/posts/<id>", methods=["GET"])
+def posts_get_by_id(post_id):
+    """
+    Get a post by id
+    Args:
+        id ([type]): id of the post to get
+
+    Returns:
+        [type]: a json of the post
+    """
+    return db.get_post_by_id(post_id)
 
 
-@app.route("/api/posts/<id>", methods=["PUT"])
-def posts_update(id):
-    return db.update_post(id, request.form)
+@api_routes.route("/api/posts/<id>", methods=["PUT"])
+def posts_update(post_id):
+    """
+    Updates a post by id
+    Args:
+        post_id ([type]): The id of the post to update
+
+    Returns:
+        [type]: The updated post
+    """
+    return db.update_post(post_id, request.form)
 
 
-@app.route("/api/posts/<id>", methods=["DELETE"])
-def posts_delete(id):
-    return db.delete_post_by_id(id)
+@api_routes.route("/api/posts/<id>", methods=["DELETE"])
+def posts_delete(post_id):
+    """
+    Deletes a post by id
+    Args:
+        post_id ([type]): id of the post to delete
+
+    Returns:
+        [type]: a json of the result
+    """
+    return db.delete_post_by_id(post_id)
 
 
-@app.route("/api/posts/post/<id>", methods=["POST"])
-def posts_post_to_reddit(id):
-    return db.post_post_to_reddit(id)
+@api_routes.route("/api/posts/post/<id>", methods=["POST"])
+def posts_post_to_reddit(post_id):
+    """
+    Post a post to reddit by id
+    Args:
+        post_id ([type]): id of the post to post
 
+    Returns:
+        [type]: a json of the result
+    """
+    return db.post_post_to_reddit(post_id)
