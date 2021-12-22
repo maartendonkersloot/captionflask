@@ -1,0 +1,172 @@
+<h1 style="color: white">scheduled</h1>
+
+<table class="uk-table">
+  <tr style="background-color: #41444b; color: white">
+    <th style="color: white">Posted?</th>
+    <th style="color: white">Caption</th>
+    <th style="color: white">Subreddits</th>
+    <th style="color: white">Picture</th>
+    <th style="color: white">Link</th>
+    <th style="color: white">Delete</th>
+    <th style="color: white">Post</th>
+  </tr>
+
+  {% for i in posts %}
+  <tr style="background-color: #52575d">
+    {% if i.posted == 0 %}
+    <td style="background-color: green">Good for posting</td>
+    {% endif %} {% if i.posted == 1 %}
+    <td style="background-color: #a44444">Already posted</td>
+    {% endif %}
+    <td>
+      <textarea
+        class="uk-textarea"
+        name="caption_edit"
+        maxlength="240"
+        id="{{ i.id  }}"
+        required
+      >
+{{ i.title }}</textarea
+      >
+      <button
+        class="uk-button uk-button-primary edit"
+        style="margin-top: 10px"
+        name="{{ i.id  }}"
+      >
+        Save changes
+      </button>
+    </td>
+    <td>{{ i.subreddits }}</td>
+    <td>
+      <a href="#ex1{{ i.id }}" rel="modal:open">
+        <img src="{{ i.link }}" width="100px" id="click" />
+      </a>
+    </td>
+    <td>
+      <a href="{{ i.link }}" target="_blank"> {{ i.link }} </a>
+    </td>
+
+    <div id="ex1{{ i.id  }}" class="modal">
+      <img
+        src="{{ i.link }}"
+        width=""
+        height=""
+        alt=""
+        id="preview_img{{ i.id  }}"
+        uk-img
+      />
+      <a href="#" rel="modal:close">Close</a>
+    </div>
+
+    <td>
+      <button class="uk-button uk-button-primary delete" name="{{ i.id  }}">
+        DELETE
+      </button>
+    </td>
+    {% if i.posted == 0 %}
+    <td>
+      <button
+        class="post"
+        class="uk-button uk-button-primary"
+        name="{{ i.id }}"
+      >
+        Can Post
+      </button>
+    </td>
+    {% endif %} {% if i.posted == 1 %}
+    <td></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
+
+<script>
+  $(".delete").click(function () {
+    clicked = $(this).attr("name");
+    $.ajax({
+      type: "DELETE",
+      url: "{{api}}api/posts/" + clicked,
+      data: { id: clicked },
+      success: function (d) {
+        axios
+          .get("{{api}}api/posts/js")
+          .then(function (response) {
+            // handle success
+            $(".tablecontainer").empty();
+            $(".tablecontainer").append(response.data);
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+          })
+          .then(function () {
+            // always executed
+          });
+      },
+    });
+  });
+
+  $(".edit").click(function () {
+    clicked = $(this).attr("name");
+    $.ajax({
+      type: "PUT",
+      url: "{{api}}api/posts/" + clicked,
+      data: {
+        title: $("#" + clicked).val(),
+      },
+      success: function (d) {
+        axios
+          .get("{{api}}api/posts/js")
+          .then(function (response) {
+            // handle success
+            $(".tablecontainer").empty();
+            $(".tablecontainer").append(response.data);
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+          })
+          .then(function () {
+            // always executed
+          });
+      },
+    });
+  });
+
+  $(".post").click(function () {
+    clicked = $(this).attr("name");
+    str = ".subreddit" + clicked;
+
+    $(".delete").prop("disabled", true);
+    $(".post").prop("disabled", true);
+    varr = $(str + ":checkbox:checked");
+    console.log(varr);
+    $.ajax({
+      type: "POST",
+      url: "{{api}}api/posts/post/" + clicked,
+      success: function (d) {
+        axios
+          .get("{{api}}api/posts/js")
+          .then(function (response) {
+            // handle success
+            $(".tablecontainer").empty();
+            $(".tablecontainer").append(response.data);
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+          })
+          .then(function () {
+            // always executed
+          });
+        $("#caption").val("");
+        $("#file").val("");
+        $(".post").prop("disabled", false);
+        $(".delete").prop("disabled", false);
+      },
+    });
+  });
+</script>

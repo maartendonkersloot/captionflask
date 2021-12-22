@@ -1,0 +1,11 @@
+{
+  "python.defaultInterpreterPath": "C:/Users/m-don/.conda/envs/flaskproject",
+  "python.testing.pytestArgs": [
+    "tests",
+    "--cov-report",
+    "xml:cov.xml",
+    "--cov"
+  ],
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": true
+}
