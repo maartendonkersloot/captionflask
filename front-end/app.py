@@ -1,4 +1,7 @@
-from flask import Flask, request, jsonify, render_template
+"""
+Index app routes/main
+"""
+from flask import Flask, render_template
 from flask_cors import CORS
 from config import get_api_key
 
@@ -18,7 +21,12 @@ subreddits = [
 
 
 @app.route("/")
-def hello_world():  # put application's code here
+def hello_world():
+    """
+    Index route
+    Returns:
+        [type]: index template
+    """
     key = get_api_key()
     return render_template("index.html", subreddits=subreddits, api=key)
 
