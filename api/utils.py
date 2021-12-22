@@ -1,30 +1,54 @@
-import requests
+"""
+Utilities used by the api to publish posts, upload to imgur and get all posts of a user.
+"""
 import base64
 import json
-import praw
 from datetime import datetime, timedelta
-
-from sqlalchemy import null
+import requests
+import praw
 
 
 def upload_to_imgur(rqs):
+    """Uploads the image to imgur from a request.
+
+    Args:
+        rqs ([type]): The request that contains the image.
+
+    Returns:
+        [type]: The link to the image and the image_string.
+    """
     uri = "https://api.imgur.com/3/image"
     file = rqs.files["file"]
     image_string = base64.b64encode(file.read())
-    r = requests.post(
+    post_request = requests.post(
         uri, headers={"Authorization": "Client-ID 5d513b09dafde5f"}, data=image_string
     )
-    json_r = json.loads(r.content)
+    json_r = json.loads(post_request.content)
     imgur_link = json_r["data"]["link"]
     return imgur_link, image_string
 
 
 def convert_utc_to_datetime(utc_time) -> datetime:
+    """ converts a unix timestamp to a datetimeobject
+
+    Args:
+        utc_time ([type]): the input unix timestamp
+
+    Returns:
+        datetime: a datetime object
+    """
     return datetime.fromtimestamp(utc_time)
 
 
-# get all timestamps within the last 12 hours from an array
 def get_last_12_hours(time_array) -> list:
+    """Get all the posts from the last 12 hours
+
+    Args:
+        time_array ([type]): An array of datetime objects.
+
+    Returns:
+        list: The array off posts that have been posted in the last 12 hours.
+    """
     now = datetime.now()
     last_12_hours = []
     for time in time_array:
@@ -34,6 +58,13 @@ def get_last_12_hours(time_array) -> list:
 
 
 def post_reddit(caption, link, subredditstring):
+    """Posts a post to reddit.
+
+    Args:
+        caption ([type]): The caption of the post.
+        link ([type]): The link to the image.
+        subredditstring ([type]): The subreddit to which the post needs to be posted.
+    """
     reddit = praw.Reddit(
         client_id="dBbawnq6RJY_zdl-TiEoHg",
         client_secret="RWjFvyIseJMGt1hQuKCCQAe-0P_63Q",
@@ -51,8 +82,18 @@ def post_reddit(caption, link, subredditstring):
         subreddit.submit(caption, url=link)
 
 
-# Praw get all posts made by a specific user
 def get_all_posts_user(user, testing_array=None) -> list:
+    """The function gets all the posts of a user.
+    returns a list of tuples with the time and the subreddit.
+
+    Args:
+        user ([type]): The user for which the posts need to be fetched.
+        testing_array ([type], optional): Is used for testing, you can manually give it a list of
+        posts to test. Defaults to None.
+
+    Returns:
+        list: A list of tuples with the time and the subreddit.
+    """
     reddit = praw.Reddit(
         client_id="dBbawnq6RJY_zdl-TiEoHg",
         client_secret="RWjFvyIseJMGt1hQuKCCQAe-0P_63Q",
@@ -71,11 +112,19 @@ def get_all_posts_user(user, testing_array=None) -> list:
 
 
 def can_i_post_to_bodyswap(testing_array=None) -> bool:
+    """The function checks if the user can post to bodyswap.
+
+    Args:
+        testing_array ([type], optional): Is used for testing, you can manually give it a list
+        of posts. Defaults to None.
+
+    Returns:
+        bool: if you can post to bodyswap or not
+    """
     amount_of_bodyswap_posts = 0
     for time_subreddit in get_all_posts_user("swapper_rp", testing_array):
         if time_subreddit[1] == "bodyswap":
             amount_of_bodyswap_posts += 1
     if amount_of_bodyswap_posts < 3:
         return True
-    print(amount_of_bodyswap_posts)
     return False
