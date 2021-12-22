@@ -7,5 +7,6 @@
     "--cov"
   ],
   "python.testing.unittestEnabled": true,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "python.formatting.provider": "black"
 }
