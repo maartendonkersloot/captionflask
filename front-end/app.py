@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from config import get_section_key, get_api_key
+from config import get_api_key
 
 app = Flask(__name__)
 CORS(app)
