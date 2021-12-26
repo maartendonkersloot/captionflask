@@ -137,7 +137,8 @@ class Db:
 
         subreddits = result.subreddits.split(",")
         for sub in subreddits:
-            if sub == "bodyswap":
+            print(sub)
+            if sub == "Bodyswap":
                 if can_i_post_to_bodyswap() is True:
                     post_reddit(result.title, result.link, sub)
                 elif can_i_post_to_bodyswap() is False:
