@@ -73,13 +73,16 @@ def post_reddit(caption, link, subredditstring):
         username="swapper_rp",
     )
     if subredditstring == "FemalePossession":
-        subreddit = reddit.subreddit(subredditstring)
-        subreddit.submit(
-            caption, url=link, flair_id="53eb82f2-9f50-11eb-9d6d-0ec13961dd49"
-        )
+        if len(subredditstring) > 1:
+            subreddit = reddit.subreddit(subredditstring)
+            subreddit.submit(
+                caption, url=link, flair_id="53eb82f2-9f50-11eb-9d6d-0ec13961dd49"
+            )
     else:
-        subreddit = reddit.subreddit(subredditstring)
-        subreddit.submit(caption, url=link)
+        if len(subredditstring) > 1:
+            print(subredditstring)
+            subreddit = reddit.subreddit(subredditstring)
+            subreddit.submit(caption, url=link)
 
 
 def get_all_posts_user(user, testing_array=None) -> list:

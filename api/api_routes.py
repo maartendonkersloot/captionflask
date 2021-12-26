@@ -58,7 +58,7 @@ def posts_get_by_id(post_id):
 
 
 @api_routes.route("/api/posts/<id>", methods=["PUT"])
-def posts_update(post_id):
+def posts_update(id):
     """
     Updates a post by id
     Args:
@@ -67,11 +67,11 @@ def posts_update(post_id):
     Returns:
         [type]: The updated post
     """
-    return db.update_post(post_id, request.form)
+    return db.update_post(id, request.form)
 
 
 @api_routes.route("/api/posts/<id>", methods=["DELETE"])
-def posts_delete(post_id):
+def posts_delete(id):
     """
     Deletes a post by id
     Args:
@@ -80,11 +80,12 @@ def posts_delete(post_id):
     Returns:
         [type]: a json of the result
     """
-    return db.delete_post_by_id(post_id)
+    print(id)
+    return db.delete_post_by_id(id)
 
 
 @api_routes.route("/api/posts/post/<id>", methods=["POST"])
-def posts_post_to_reddit(post_id):
+def posts_post_to_reddit(id):
     """
     Post a post to reddit by id
     Args:
@@ -93,4 +94,4 @@ def posts_post_to_reddit(post_id):
     Returns:
         [type]: a json of the result
     """
-    return db.post_post_to_reddit(post_id)
+    return db.post_post_to_reddit(id)

@@ -4,7 +4,7 @@ The database object/handler for the api
 import json
 from alchemyencoder import AlchemyEncoder
 from objects.Post import Post
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, null
 from sqlalchemy.orm import sessionmaker
 from utils import upload_to_imgur, can_i_post_to_bodyswap, post_reddit
 
@@ -107,6 +107,7 @@ class Db:
         Returns:
             [type]: The json of the post that was updated
         """
+
         session_maker = sessionmaker(bind=self.engine)
         session = session_maker()
         result = session.query(Post).filter(Post.id == post_id).update(edit_dictionary)
@@ -125,6 +126,7 @@ class Db:
         """
         session_maker = sessionmaker(bind=self.engine)
         session = session_maker()
+
         result = session.query(Post).filter(Post.id == post_id).one()
 
         if result.posted == 1:
@@ -145,8 +147,7 @@ class Db:
                     }
             else:
                 post_reddit(result.title, result.link, sub)
-
-        result = session.query(Post).filter(Post.id is id).update({"posted": 1})
+        result = session.query(Post).filter(Post.id == result.id).update({"posted": 1})
         session.commit()
         res = json.dumps(result, cls=AlchemyEncoder, sort_keys=True)
         print(res)
